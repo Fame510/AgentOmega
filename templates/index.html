@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
+        .log-line { border-bottom: 1px solid #1f1f1f; padding: 2px 0; }
+    </style>
+</head>
+<body class="bg-black text-gray-200 font-mono text-sm min-h-screen flex flex-col">
+
+    <header class="border-b border-gray-800 bg-gray-900/80 px-6 py-3 flex justify-between items-center backdrop-blur">
+        <div class="flex items-center gap-3">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="uppercase tracking-widest text-emerald-300 font-bold text-xs">Agent Orchestrator v3</span>
+        </div>
+        <span id="net-badge" class="text-[10px] uppercase tracking-wider text-gray-500 border border-gray-700 px-3 py-1 rounded">Offline</span>
+    </header>
+
+    <main class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 max-w-7xl mx-auto w-full">
+        <!-- Left Panel -->
+        <section class="lg:col-span-1 bg-gray-900/50 border border-gray-800 rounded-xl p-5 flex flex-col h-[500px]">
+            <h2 class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-3">⚡ Inject Goal</h2>
+            <textarea id="goal-input" rows="6" class="w-full bg-black border border-gray-700 rounded-lg p-3 text-xs text-gray-200 focus:border-emerald-400/60 outline-none resize-none placeholder-gray-600"
+                placeholder="e.g. Search for 'Playwright best practices' on Google and click the first result"></textarea>
+            <button onclick="startWorkflow()" class="mt-4 bg-emerald-500 hover:bg-emerald-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg transition-all shadow-lg shadow-emerald-500/20">
+                ▶ Launch
+            </button>
+            <button onclick="stopWorkflow()" class="mt-2 bg-rose-500 hover:bg-rose-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg transition-all shadow-lg shadow-rose-500/20">
+                ⏹ Stop
+            </button>
+            <div class="mt-3 text-[9px] text-gray-500 uppercase tracking-wider">
+                Status: <span id="status-label" class="text-gray-300">Idle</span>
+            </div>
+        </section>
+
+        <!-- Telemetry Log -->
+        <section class="lg:col-span-2 bg-gray-900/50 border border-gray-800 rounded-xl flex flex-col h-[500px] overflow-hidden">
+            <div class="bg-black/40 px-4 py-2 border-b border-gray-800 flex justify-between text-[10px] uppercase tracking-wider text-gray-500">
+                <span>Telemetry Stream</span>
+                <span id="step-counter">Step 0/0</span>
+            </div>
+            <div id="log-container" class="flex-1 p-4 overflow-y-auto space-y-0.5">
+                <div class="text-gray-600">// Awaiting command...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const logBox = document.getElementById('log-container');
+        const netBadge = document.getElementById('net-badge');
+        const statusLabel = document.getElementById('status-label');
+        const stepCounter = document.getElementById('step-counter');
+
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+        const ws = new WebSocket(`${protocol}://${location.host}/ws/stream`);
+
+        ws.onopen = () => {
+            netBadge.innerText = '🟢 Connected';
+            netBadge.className = 'text-[10px] uppercase tracking-wider text-emerald-400 border border-emerald-800 px-3 py-1 rounded bg-emerald-950/20';
+        };
+        ws.onclose = () => {
+            netBadge.innerText = '🔴 Disconnected';
+            netBadge.className = 'text-[10px] uppercase tracking-wider text-rose-400 border border-rose-800 px-3 py-1 rounded bg-rose-950/20';
+        };
+
+        ws.onmessage = (ev) => {
+            const data = JSON.parse(ev.data);
+            const line = document.createElement('div');
+            line.className = 'log-line flex gap-2 text-xs';
+
+            const time = new Date().toLocaleTimeString();
+            let stageColor = 'text-gray-400';
+            if (data.stage === 'PLAN') stageColor = 'text-purple-300';
+            if (data.stage === 'THINKING') stageColor = 'text-cyan-300';
+            if (data.stage === 'EXECUTION') stageColor = 'text-amber-300';
+            if (data.stage === 'VISION_FALLBACK') stageColor = 'text-rose-400 font-bold';
+            if (data.stage === 'FATAL_ERROR') stageColor = 'text-red-500 font-bold';
+
+            line.innerHTML = `
+                <span class="text-gray-600">[${time}]</span>
+                <span class="${stageColor} font-mono">[${data.stage}]</span>
+                <span class="text-gray-200">${data.message}</span>
+            `;
+            logBox.appendChild(line);
+            logBox.scrollTop = logBox.scrollHeight;
+
+            statusLabel.innerText = data.stage;
+            if (data.payload && data.payload.step) {
+                stepCounter.innerText = `Step ${data.payload.step}`;
+            }
+        };
+
+        function startWorkflow() {
+            const goal = document.getElementById('goal-input').value;
+            if (!goal.trim()) return alert('Enter a goal first.');
+            logBox.innerHTML = `<div class="text-emerald-400">🚀 Sending workflow...</div>`;
+            ws.send(JSON.stringify({ action: 'PRODUCE_WORKFLOW', goal: goal }));
+        }
+
+        function stopWorkflow() {
+            ws.send(JSON.stringify({ action: 'STOP_WORKFLOW' }));
+        }
+    </script>
+</body>
+</html>
