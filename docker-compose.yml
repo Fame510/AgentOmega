@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  agent:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HEADLESS=true
+      - USE_REDIS_SESSION=true
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
