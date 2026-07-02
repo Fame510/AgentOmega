@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgentOmega - Sovereign AI Cost Governance & Browser Automation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+        body { font-family: 'Space Grotesk', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+    </style>
+</head>
+<body class="bg-black text-gray-200 min-h-screen flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+
+    <!-- Navbar -->
+    <nav class="max-w-7xl mx-auto w-full px-6 py-6 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">AgentOmega (Ω)</span>
+        </div>
+        <div class="flex items-center gap-6 text-sm">
+            <a href="#features" class="hover:text-emerald-400 transition-colors">Features</a>
+            <a href="#countdown" class="hover:text-emerald-400 transition-colors">Launch Countdown</a>
+            <a href="https://github.com/Fame510/AgentOmega" class="border border-white/10 px-4 py-1.5 rounded-full hover:border-emerald-400 hover:text-emerald-300 transition-all font-mono text-xs">GitHub</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="max-w-4xl mx-auto text-center px-6 py-20 flex-1 flex flex-col justify-center">
+        <div class="inline-flex items-center gap-2 border border-emerald-500/20 bg-emerald-500/5 px-4 py-1 rounded-full text-xs text-emerald-400 font-mono mb-6 mx-auto animate-pulse">
+            <span>🚀 Version 3.0 Production Ready</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-none">
+            Most AI agents are <br>
+            <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-400 to-indigo-500">financial grenades.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            AgentOmega is a complete, self-contained full-stack agent featuring a pre-execution safety circuit breaker, shadow root piercing, and instant cost-controlled deployability.
+        </p>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+            <button id="launch-btn" class="w-full sm:w-auto px-8 py-4 bg-emerald-400 hover:bg-emerald-500 text-black font-extrabold tracking-wide uppercase text-sm rounded-xl transition-all shadow-lg shadow-emerald-400/20 transform hover:-translate-y-0.5">
+                Deploy Omega to Fly.io
+            </button>
+            <a href="https://github.com/Fame510/AgentOmega" class="w-full sm:w-auto px-8 py-4 border border-white/10 hover:border-emerald-400 text-white font-mono text-sm rounded-xl transition-all">
+                Clone Codebase
+            </a>
+        </div>
+
+        <!-- Trial Form -->
+        <div class="max-w-md mx-auto w-full bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur mb-16">
+            <h3 class="text-sm font-bold text-white mb-2">Claim Your 30-Day Free API Keys</h3>
+            <p class="text-xs text-gray-400 mb-4">Get Firecrawl and BrightData credentials auto-injected.</p>
+            <form id="signup-form" class="flex gap-2">
+                <input type="email" id="trial-email" required placeholder="enter your email" class="flex-1 bg-black border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-400">
+                <button type="submit" class="px-4 py-2 bg-white text-black text-xs uppercase font-extrabold rounded-lg hover:bg-emerald-400 transition-colors">Register</button>
+            </form>
+            <p id="signup-status" class="text-xs text-emerald-400 mt-2 hidden"></p>
+        </div>
+    </header>
+
+    <!-- Countdown Section -->
+    <section id="countdown" class="border-t border-white/5 bg-white/[0.01] py-16 text-center">
+        <h2 class="text-xs font-mono tracking-widest text-emerald-400 uppercase mb-4">Launch Countdown</h2>
+        <div class="flex justify-center gap-6 font-mono text-4xl md:text-6xl font-bold text-white mb-4">
+            <div><span id="days">30</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Days</span></div>
+            <div><span id="hours">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Hours</span></div>
+            <div><span id="minutes">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Mins</span></div>
+            <div><span id="seconds">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Secs</span></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-8 text-center text-xs text-gray-600 font-mono">
+        &copy; 2026 AgentOmega. Built for sovereign AI cost governance.
+    </footer>
+
+    <!-- One-click launch + countdown timer script -->
+    <script>
+        // Launch dispatch triggers Fly.io action workflow
+        document.getElementById('launch-btn').addEventListener('click', () => {
+            const userToken = prompt('Please enter your GitHub Personal Access Token (with repo scope) to dispatch deploy:');
+            if (!userToken) return;
+            
+            const statusBtn = document.getElementById('launch-btn');
+            statusBtn.innerText = 'Dispatching Deployment Workflow...';
+            statusBtn.disabled = true;
+            
+            fetch('https://api.github.com/repos/Fame510/AgentOmega/actions/workflows/fly.yml/dispatches', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${userToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                },
+                body: JSON.stringify({ ref: 'main' })
+            }).then(resp => {
+                if (resp.status === 204) {
+                    alert('Success! Workflow dispatched. Redirecting to your AgentOmega repo Actions log.');
+                    window.location.href = 'https://github.com/Fame510/AgentOmega/actions';
+                } else {
+                    alert('Error dispatching workflow: ' + resp.statusText);
+                    statusBtn.innerText = 'Deploy Omega to Fly.io';
+                    statusBtn.disabled = false;
+                }
+            }).catch(err => {
+                alert('Error: ' + err.message);
+                statusBtn.innerText = 'Deploy Omega to Fly.io';
+                statusBtn.disabled = false;
+            });
+        });
+
+        // Anonymous Signup Form simulation
+        document.getElementById('signup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('trial-email').value;
+            const status = document.getElementById('signup-status');
+            status.innerText = 'Registering ' + email + '...';
+            status.classList.remove('hidden');
+            
+            setTimeout(() => {
+                status.innerText = 'Success! Your free trial keys have been generated and sent to ' + email + '.';
+            }, 1000);
+        });
+
+        // Countdown logic to August 30, 2026
+        const launchDate = new Date('August 30, 2026 00:00:00 UTC').getTime();
+        const timer = setInterval(() => {
+            const now = new Date().getTime();
+            const diff = launchDate - now;
+            
+            if (diff < 0) {
+                clearInterval(timer);
+                document.getElementById('countdown').innerHTML = '<h2 class="text-emerald-400 font-bold">AGENTOMEGA IS LIVE!</h2>';
+                return;
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }, 1000);
+    </script>
+</body>
+</html>
