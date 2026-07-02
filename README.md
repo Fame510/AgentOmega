@@ -1,8 +1,8 @@
 # AgentOmega (Ω)
 
-> **"Generation is not release authority."**
+> **\"Generation is not release authority.\"**
 
-AgentOmega represents the "nuclear fusion" of **Aeon_Dux's** browser runtime and **SHACKLE's** mathematically verified, pre-execution safety circuit breaker. By binding local-first Proof of Resonance (PoR) semantics with framework-agnostic execution guards, AgentOmega establishes a complete, zero-refactor sovereignty layer for autonomous AI agents.
+AgentOmega represents the \"nuclear fusion\" of **Aeon_Dux's** browser runtime and **SHACKLE's** mathematically verified, pre-execution safety circuit breaker. By binding local-first Proof of Resonance (PoR) semantics with framework-agnostic execution guards, AgentOmega establishes a complete, zero-refactor sovereignty layer for autonomous AI agents.
 
 ---
 
@@ -40,7 +40,7 @@ Enforces mathematical invariants at the pre-execution boundary.
 - **Ed25519 Auditing:** Signs every audit log entry to establish cryptographic execution provenance.
 
 ### 3. Proof of Resonance (PoR) Release Semantics
-Implements Anton Semenenko's local-governed memory and release-provenance protocol to protect the boundary of memory-backed outputs:
+Implements local-governed memory and release-provenance protocol to protect the boundary of memory-backed outputs:
 - **PROCEED**: Candidate meets resonance threshold; approved for tool/execution gate.
 - **NEEDS_REVIEW**: Escalates to human-in-the-loop validation.
 - **SILENCE**: Candidate generated, release denied, audit preserved. Withholds outputs to prevent leakage of unadmitted memory or sensitive workspace data.
@@ -67,8 +67,8 @@ from agent_omega import OmegaRuntime
 
 # Initialize the runtime with Aeon_Dux and SHACKLE
 runtime = OmegaRuntime(
-    runtime_engine="aeon_dux",
-    safety_policy="shackle_sp_1"
+    runtime_engine=\"aeon_dux\",
+    safety_policy=\"shackle_sp_1\"
 )
 
 # Apply the guard to protect tool boundaries
@@ -82,4 +82,4 @@ def web_navigation_and_action(url, action):
 ## Collaboration & Licensing
 AgentOmega is built for sovereign, production-grade AI agency.
 - **SHACKLE Core:** AGPLv3 License.
-- **SemeAI / PoR Integration:** Joint design-partner specification (co-authored by Dante Bullock & Anton Semenenko).
+- **SemeAI / PoR Integration:** Joint design-partner specification (co-authored by Dante Bullock).
