@@ -1,150 +1,393 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgentOmega - Sovereign AI Cost Governance & Browser Automation</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-        body { font-family: 'Space Grotesk', sans-serif; }
-        .font-mono { font-family: 'Space Mono', monospace; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentOmega — The Future of Light, Governed.</title>
+<meta name="description" content="AgentOmega is a luminous autonomous browser agent: it plans, sees, and acts on the open web on its own — with a runtime conscience woven in. Watch it live and launch on tap.">
+<style>
+  :root{
+    --bg:#f4f8ff; --bg2:#eaf2ff; --ink:#0b1836; --ink-soft:#41527a;
+    --blue:#0a84ff; --blue2:#3aa0ff; --electric:#00c2ff; --deep:#1436ff;
+    --yellow:#ffd21f; --amber:#ffb300; --glow:#8fd3ff; --white:#ffffff;
+    --line:rgba(10,132,255,.18); --card:rgba(255,255,255,.72);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%,rgba(0,194,255,.18),transparent 60%),
+      radial-gradient(900px 500px at -10% 20%,rgba(255,210,31,.16),transparent 55%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    color:var(--ink); font-family:'Inter','SF Pro Display',-apple-system,'Segoe UI',sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh;
+  }
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--yellow);color:var(--ink);}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+  .eyebrow{font-size:12px;letter-spacing:4px;text-transform:uppercase;font-weight:700;
+    background:linear-gradient(90deg,var(--deep),var(--electric));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+  /* floating light orbs */
+  .orb{position:fixed;border-radius:50%;filter:blur(40px);opacity:.5;z-index:0;pointer-events:none;animation:float 14s ease-in-out infinite;}
+  .orb.a{width:320px;height:320px;background:var(--electric);top:-60px;right:8%;}
+  .orb.b{width:260px;height:260px;background:var(--yellow);bottom:10%;left:-40px;animation-delay:-5s;}
+  .orb.c{width:200px;height:200px;background:var(--blue2);top:40%;right:40%;animation-delay:-9s;opacity:.3;}
+  @keyframes float{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-30px) translateX(20px)}}
+
+  /* ============ NAV ============ */
+  .nav{position:sticky;top:0;z-index:100;background:rgba(244,248,255,.7);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px;font-size:18px;}
+  .logo .mark{width:30px;height:30px;border-radius:9px;background:conic-gradient(from 200deg,var(--electric),var(--deep),var(--yellow),var(--electric));
+    box-shadow:0 6px 20px rgba(10,132,255,.4);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;}
+  .nav nav a{margin-left:22px;font-size:14px;color:var(--ink-soft);font-weight:600;}
+  .nav nav a:hover{color:var(--blue);}
+
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:15px 28px;border-radius:14px;font-weight:700;font-size:15px;
+    cursor:pointer;border:none;transition:.18s;letter-spacing:.3px;}
+  .btn.primary{background:linear-gradient(120deg,var(--deep),var(--electric));color:#fff;box-shadow:0 10px 30px rgba(10,132,255,.35);}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(10,132,255,.5);}
+  .btn.sun{background:linear-gradient(120deg,var(--amber),var(--yellow));color:var(--ink);box-shadow:0 10px 30px rgba(255,179,0,.35);}
+  .btn.sun:hover{transform:translateY(-2px);}
+  .btn.ghost{background:var(--white);color:var(--ink);border:1px solid var(--line);}
+  .btn.ghost:hover{border-color:var(--blue);color:var(--blue);}
+
+  /* ============ HERO ============ */
+  .hero{position:relative;z-index:1;padding:70px 0 40px;text-align:center;}
+  .hero .eyebrow{display:inline-block;margin-bottom:16px;}
+  .hero h1{font-size:clamp(38px,8vw,84px);font-weight:900;line-height:1.02;letter-spacing:-2px;}
+  .hero h1 .grad{background:linear-gradient(110deg,var(--deep),var(--electric) 55%,var(--yellow));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero p.lead{font-size:19px;color:var(--ink-soft);max-width:660px;margin:20px auto 30px;}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .trust{margin-top:22px;font-size:12px;color:var(--ink-soft);}
+  .trust b{color:var(--blue);}
+
+  /* ============ LIVE CONSOLE ============ */
+  .console{position:relative;z-index:1;margin:44px auto 0;max-width:1000px;border-radius:22px;overflow:hidden;
+    background:rgba(255,255,255,.55);backdrop-filter:blur(18px);border:1px solid var(--line);
+    box-shadow:0 30px 80px rgba(11,24,54,.18);}
+  .console-head{display:flex;align-items:center;gap:8px;padding:12px 18px;background:rgba(255,255,255,.5);border-bottom:1px solid var(--line);}
+  .cdot{width:11px;height:11px;border-radius:50%;}.cdot.r{background:#ff6b6b}.cdot.y{background:var(--yellow)}.cdot.g{background:#2fd48a}
+  .console-head .ttl{margin-left:10px;font-size:13px;color:var(--ink-soft);font-weight:600;}
+  .console-head .live{margin-left:auto;font-size:12px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:6px;}
+  .console-head .live .b{width:8px;height:8px;border-radius:50%;background:var(--electric);box-shadow:0 0 10px var(--electric);animation:blink 1.2s infinite;}
+  @keyframes blink{50%{opacity:.3}}
+
+  .stage{position:relative;height:430px;background:
+    radial-gradient(circle at 50% 0%,rgba(0,194,255,.12),transparent 55%),
+    linear-gradient(180deg,#fbfdff,#eef5ff);overflow:hidden;}
+  #beams{position:absolute;inset:0;width:100%;height:100%;opacity:.6;}
+  .browser{position:absolute;left:6%;right:6%;top:12%;bottom:16%;background:#fff;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);box-shadow:0 24px 60px rgba(11,24,54,.16);}
+  .b-bar{height:34px;background:#f2f7ff;display:flex;align-items:center;gap:6px;padding:0 12px;border-bottom:1px solid var(--line);}
+  .b-bar .u{flex:1;height:18px;background:#fff;border:1px solid var(--line);border-radius:9px;margin-left:8px;font-size:11px;
+    color:var(--blue);display:flex;align-items:center;padding:0 10px;overflow:hidden;white-space:nowrap;font-weight:600;}
+  .b-body{padding:20px;}
+  .ln{height:11px;border-radius:6px;background:linear-gradient(90deg,#e7f0ff,#f3f8ff);margin-bottom:12px;}
+  .ln.s{width:55%}.ln.m{width:82%}
+  .ln.cta{width:140px;height:34px;border-radius:9px;background:linear-gradient(120deg,var(--deep),var(--electric));margin-top:16px;}
+
+  #cursor{position:absolute;width:24px;height:24px;z-index:20;transition:left .9s cubic-bezier(.6,.05,.3,1),top .9s cubic-bezier(.6,.05,.3,1);
+    filter:drop-shadow(0 4px 8px rgba(10,132,255,.5));}
+  .ring{position:absolute;width:46px;height:46px;border:3px solid var(--electric);border-radius:50%;z-index:19;transform:translate(-50%,-50%) scale(0);opacity:0;}
+  .ring.go{animation:ring .6s ease-out;}
+  @keyframes ring{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(-50%,-50%) scale(1.5);opacity:0}}
+
+  /* HUD */
+  .hud{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:8px;justify-content:space-between;z-index:30;pointer-events:none;flex-wrap:wrap;}
+  .hud .chip{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:11px;font-weight:600;color:var(--ink-soft);}
+  .hud .chip b{color:var(--blue);}
+  .verdict{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%) scale(.6);z-index:40;font-size:46px;font-weight:900;letter-spacing:3px;opacity:0;transition:.25s;pointer-events:none;}
+  .verdict.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  .verdict.allow{color:#12b886;text-shadow:0 0 26px rgba(18,184,134,.5);}
+  .verdict.deny{color:#ff5470;text-shadow:0 0 26px rgba(255,84,112,.5);}
+  .verdict.hitl{color:var(--amber);text-shadow:0 0 26px rgba(255,179,0,.6);}
+
+  /* AVATAR: OMEGA (the being of light) */
+  .beings{position:absolute;bottom:14px;left:0;right:0;display:flex;justify-content:space-between;padding:0 22px;z-index:25;pointer-events:none;}
+  .being{width:110px;text-align:center;}
+  .being .nm{font-size:11px;font-weight:800;letter-spacing:.5px;margin-top:6px;}
+  .being .rl{font-size:10px;color:var(--ink-soft);}
+  /* Omega: glowing orb-face made of light */
+  .omega-orb{width:78px;height:78px;margin:0 auto;border-radius:50%;position:relative;
+    background:radial-gradient(circle at 38% 32%,#fff,var(--electric) 45%,var(--deep) 100%);
+    box-shadow:0 0 30px rgba(0,194,255,.6),0 0 60px rgba(10,132,255,.3);animation:hover1 3s ease-in-out infinite;}
+  .omega-orb::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:2px solid rgba(255,210,31,.5);animation:spin 6s linear infinite;}
+  .omega-orb .core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;
+    background:radial-gradient(circle,#fff,var(--yellow));box-shadow:0 0 18px var(--yellow);}
+  .omega-orb .eye{position:absolute;top:30px;width:9px;height:9px;background:#fff;border-radius:50%;box-shadow:0 0 8px #fff;}
+  .omega-orb .eye.l{left:22px}.omega-orb .eye.r{right:22px}
+  @keyframes hover1{50%{transform:translateY(-8px)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .omega-nm{background:linear-gradient(90deg,var(--deep),var(--electric));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  /* Conscience: subtle guardian spark (the hint of SHACKLE) */
+  .guardian{width:64px;height:64px;margin:0 auto;border-radius:16px;position:relative;
+    background:linear-gradient(160deg,rgba(255,255,255,.9),rgba(255,210,31,.35));border:1.5px solid var(--amber);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px rgba(255,179,0,.35);}
+  .guardian .g{font-size:26px;filter:drop-shadow(0 0 6px var(--amber));}
+  .being.thinking .omega-orb{animation:hover1 .8s ease-in-out infinite;}
+  .being.alert .guardian{border-color:#ff5470;box-shadow:0 0 22px rgba(255,84,112,.6);animation:shake .3s;}
+  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .speech{position:absolute;bottom:96px;background:rgba(255,255,255,.95);border:1px solid var(--line);padding:7px 11px;border-radius:12px;
+    font-size:11px;font-weight:600;max-width:160px;opacity:0;transition:.3s;box-shadow:0 8px 24px rgba(11,24,54,.12);}
+  .speech.show{opacity:1;}
+  .speech.omega{left:22px;color:var(--blue);}
+  .speech.guardian{right:22px;color:var(--amber);text-align:right;}
+
+  .telemetry{height:132px;overflow:hidden;background:rgba(255,255,255,.6);border-top:1px solid var(--line);padding:10px 16px;font-size:12.5px;font-family:'SF Mono',monospace;}
+  .telemetry .row{opacity:0;animation:fade .3s forwards;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .telemetry .t{color:var(--ink-soft)}.telemetry .allow{color:#12b886;font-weight:600}.telemetry .deny{color:#ff5470;font-weight:600}
+  .telemetry .hitl{color:var(--amber);font-weight:600}.telemetry .sys{color:var(--blue)}
+  @keyframes fade{to{opacity:1}}
+  .launch{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 16px;background:rgba(255,255,255,.6);border-top:1px solid var(--line);}
+  .launch input{flex:1;min-width:240px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px;font-size:14px;color:var(--ink);}
+  .launch input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(10,132,255,.15);}
+
+  section{position:relative;z-index:1;padding:70px 0;}
+  h2.sec{font-size:clamp(28px,5vw,46px);font-weight:900;letter-spacing:-1px;text-align:center;}
+  h2.sec .grad{background:linear-gradient(110deg,var(--deep),var(--electric));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sec-sub{color:var(--ink-soft);max-width:640px;margin:12px auto 40px;text-align:center;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;}
+  .card{background:var(--card);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:18px;padding:26px;transition:.18s;}
+  .card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(11,24,54,.14);border-color:var(--blue);}
+  .card .ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;
+    background:linear-gradient(135deg,rgba(0,194,255,.16),rgba(255,210,31,.2));}
+  .card h3{font-size:17px;font-weight:800;margin-bottom:7px;}
+  .card p{color:var(--ink-soft);font-size:14px;}
+
+  .flow{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin-top:10px;}
+  .flow .node{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;}
+  .flow .node .n{font-size:11px;font-weight:800;letter-spacing:2px;background:linear-gradient(90deg,var(--deep),var(--electric));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .flow .node h4{margin:8px 0 6px;font-size:15px;font-weight:800;}
+  .flow .node p{font-size:12.5px;color:var(--ink-soft);}
+  .flow .arrow{display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:22px;padding:0 6px;}
+  .flow .node.gate{border-color:var(--amber);box-shadow:0 0 22px rgba(255,179,0,.18);}
+
+  .powered{text-align:center;margin-top:14px;}
+  .powered .tag{display:inline-flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:600;color:var(--ink-soft);}
+  .powered .tag b{background:linear-gradient(90deg,var(--amber),var(--deep));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+  footer{position:relative;z-index:1;text-align:center;padding:48px 0 40px;color:var(--ink-soft);font-size:13px;}
+  footer .big{font-size:22px;font-weight:900;letter-spacing:-.5px;}
+  footer .big .g{background:linear-gradient(110deg,var(--deep),var(--electric),var(--yellow));-webkit-background-clip:text;background-clip:text;color:transparent;}
+  footer .sig{color:var(--blue);font-weight:700;}
+  .pill{display:inline-block;background:var(--white);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:12px;margin:3px;color:var(--ink-soft);}
+  .pill b{color:var(--blue);}
+  @media(max-width:640px){.stage{height:390px}.being{width:82px}.omega-orb{width:60px;height:60px}}
+</style>
 </head>
-<body class="bg-black text-gray-200 min-h-screen flex flex-col selection:bg-emerald-500/30 selection:text-emerald-300">
+<body>
+<div class="orb a"></div><div class="orb b"></div><div class="orb c"></div>
 
-    <!-- Navbar -->
-    <nav class="max-w-7xl mx-auto w-full px-6 py-6 flex justify-between items-center border-b border-white/5">
-        <div class="flex items-center gap-3">
-            <span class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400">AgentOmega (Ω)</span>
+<div class="nav">
+  <div class="logo"><span class="mark">Ω</span> AgentOmega</div>
+  <nav>
+    <a href="#live">Live</a><a href="#how">How</a><a href="#features">Features</a>
+    <a href="https://github.com/Fame510/AgentOmega" target="_blank">GitHub</a>
+    <a class="btn primary" style="padding:9px 18px;font-size:13px" onclick="scrollToLive()">Launch ▶</a>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Autonomous · Luminous · Governed</span>
+    <h1>The future of <span class="grad">light</span>,<br>that acts for you.</h1>
+    <p class="lead">AgentOmega is a self-driving agent that plans, sees, and operates the open web on your behalf — a being of pure momentum with a <b>runtime conscience</b> woven in, so it always moves fast <em>and</em> stays in bounds. Watch him work, then launch your own run on tap.</p>
+    <div class="hero-cta">
+      <button class="btn primary" onclick="scrollToLive()">▶ Launch AgentOmega</button>
+      <a class="btn ghost" href="https://github.com/Fame510/AgentOmega" target="_blank">Explore the Source</a>
+    </div>
+    <div class="trust">Plans with an LLM · Sees with vision · Acts in a real browser · <b>Every move governed in real time</b></div>
+  </div>
+</div>
+
+<!-- LIVE -->
+<section id="live" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="console">
+      <div class="console-head">
+        <span class="cdot r"></span><span class="cdot y"></span><span class="cdot g"></span>
+        <span class="ttl">agentomega · live session</span>
+        <span class="live"><span class="b"></span> LIVE</span>
+      </div>
+      <div class="stage" id="stage">
+        <canvas id="beams"></canvas>
+        <div class="hud">
+          <div class="chip">STATE <b id="hud-state">IDLE</b></div>
+          <div class="chip">STEP <b id="hud-step">0</b></div>
+          <div class="chip">BUDGET <b id="hud-budget">$1.0000</b></div>
+          <div class="chip">MOVES <b id="hud-calls">0</b></div>
         </div>
-        <div class="flex items-center gap-6 text-sm">
-            <a href="#features" class="hover:text-emerald-400 transition-colors">Features</a>
-            <a href="#countdown" class="hover:text-emerald-400 transition-colors">Launch Countdown</a>
-            <a href="https://github.com/Fame510/AgentOmega" class="border border-white/10 px-4 py-1.5 rounded-full hover:border-emerald-400 hover:text-emerald-300 transition-all font-mono text-xs">GitHub</a>
+        <div class="browser">
+          <div class="b-bar"><span class="cdot r"></span><span class="cdot y"></span><span class="cdot g"></span>
+            <span class="u" id="fb-url">about:blank</span></div>
+          <div class="b-body"><div class="ln m"></div><div class="ln s"></div><div class="ln m"></div><div class="ln s"></div><div class="ln cta" id="target"></div></div>
         </div>
-    </nav>
-
-    <!-- Hero -->
-    <header class="max-w-4xl mx-auto text-center px-6 py-20 flex-1 flex flex-col justify-center">
-        <div class="inline-flex items-center gap-2 border border-emerald-500/20 bg-emerald-500/5 px-4 py-1 rounded-full text-xs text-emerald-400 font-mono mb-6 mx-auto animate-pulse">
-            <span>🚀 Version 3.0 Production Ready</span>
+        <div id="cursor" style="left:50%;top:48%"><svg viewBox="0 0 24 24"><path d="M4 2l6 16 2.5-6.5L19 9 4 2z" fill="#0a84ff" stroke="#fff" stroke-width="1.2"/></svg></div>
+        <div class="ring" id="ring"></div>
+        <div class="verdict" id="verdict"></div>
+        <div class="speech omega" id="speech-omega"></div>
+        <div class="speech guardian" id="speech-guardian"></div>
+        <div class="beings">
+          <div class="being" id="b-omega">
+            <div class="omega-orb"><span class="eye l"></span><span class="eye r"></span><span class="core"></span></div>
+            <div class="nm omega-nm">OMEGA</div><div class="rl">The Agent of Light</div>
+          </div>
+          <div class="being" id="b-guardian">
+            <div class="guardian"><span class="g">✦</span></div>
+            <div class="nm">Conscience</div><div class="rl">Powered by SHACKLE</div>
+          </div>
         </div>
-        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-none">
-            Most AI agents are <br>
-            <span class="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-cyan-400 to-indigo-500">financial grenades.</span>
-        </h1>
-        <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-            AgentOmega is a complete, self-contained full-stack agent featuring a pre-execution safety circuit breaker, shadow root piercing, and instant cost-controlled deployability.
-        </p>
+      </div>
+      <div class="telemetry" id="telemetry"></div>
+      <div class="launch">
+        <input id="goal" placeholder="Give Omega a goal…" value="Find the SHACKLE repo, open the README, and summarize it">
+        <button class="btn primary" onclick="launch()">▶ LAUNCH</button>
+        <button class="btn ghost" onclick="stopRun()">■ STOP</button>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:12px;color:var(--ink-soft);margin-top:12px;">Tap launch to connect to a live AgentOmega backend at this origin, or watch the governed demo.</p>
+  </div>
+</section>
 
-        <!-- Actions -->
-        <div class="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
-            <button id="launch-btn" class="w-full sm:w-auto px-8 py-4 bg-emerald-400 hover:bg-emerald-500 text-black font-extrabold tracking-wide uppercase text-sm rounded-xl transition-all shadow-lg shadow-emerald-400/20 transform hover:-translate-y-0.5">
-                Deploy Omega to Fly.io
-            </button>
-            <a href="https://github.com/Fame510/AgentOmega" class="w-full sm:w-auto px-8 py-4 border border-white/10 hover:border-emerald-400 text-white font-mono text-sm rounded-xl transition-all">
-                Clone Codebase
-            </a>
-        </div>
+<!-- HOW -->
+<section id="how">
+  <div class="wrap">
+    <span class="eyebrow" style="display:block;text-align:center;">The governed loop</span>
+    <h2 class="sec">Fast as light. <span class="grad">Never</span> reckless.</h2>
+    <p class="sec-sub">Omega proposes; his conscience decides. The boundary is enforced at the exact instant before any action touches the world.</p>
+    <div class="flow">
+      <div class="node"><div class="n">01 PLAN</div><h4>Intent</h4><p>Turns your goal into a path of steps.</p></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="n">02 SEE</div><h4>Perceive</h4><p>Distills the live page; vision fallback when needed.</p></div>
+      <div class="arrow">→</div>
+      <div class="node gate"><div class="n">03 DECIDE</div><h4>Conscience</h4><p>ALLOW · DENY · HITL, evaluated before execution.</p></div>
+      <div class="arrow">→</div>
+      <div class="node"><div class="n">04 ACT</div><h4>Move</h4><p>Only what's allowed runs — and every move is remembered.</p></div>
+    </div>
+  </div>
+</section>
 
-        <!-- Trial Form -->
-        <div class="max-w-md mx-auto w-full bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur mb-16">
-            <h3 class="text-sm font-bold text-white mb-2">Claim Your 30-Day Free API Keys</h3>
-            <p class="text-xs text-gray-400 mb-4">Get Firecrawl and BrightData credentials auto-injected.</p>
-            <form id="signup-form" class="flex gap-2">
-                <input type="email" id="trial-email" required placeholder="enter your email" class="flex-1 bg-black border border-white/10 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-400">
-                <button type="submit" class="px-4 py-2 bg-white text-black text-xs uppercase font-extrabold rounded-lg hover:bg-emerald-400 transition-colors">Register</button>
-            </form>
-            <p id="signup-status" class="text-xs text-emerald-400 mt-2 hidden"></p>
-        </div>
-    </header>
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <span class="eyebrow" style="display:block;text-align:center;">Capabilities</span>
+    <h2 class="sec">Everything <span class="grad">Omega</span> is.</h2>
+    <div class="grid" style="margin-top:36px">
+      <div class="card"><div class="ico">🌐</div><h3>Real Browser Autonomy</h3><p>Navigates, clicks, types, and scrapes toward a plain-language goal in a live browser.</p></div>
+      <div class="card"><div class="ico">👁️</div><h3>Vision When Blind</h3><p>When the page map fails, Omega looks at the screen and finds the way forward.</p></div>
+      <div class="card"><div class="ico">✦</div><h3>Runtime Conscience</h3><p>A built-in circuit breaker weighs every action before it fires. Momentum with judgment.</p></div>
+      <div class="card"><div class="ico">🔗</div><h3>Perfect Memory</h3><p>A signed, hash-chained ledger of every decision — tamper-evident and verifiable.</p></div>
+      <div class="card"><div class="ico">🧑‍✈️</div><h3>Human in the Loop</h3><p>Asks for you at the important moments, with a bounded timeout that fails safe.</p></div>
+      <div class="card"><div class="ico">💛</div><h3>Budget & Loop Guards</h3><p>Spend caps, loop breakers, and global limits keep runs on the rails.</p></div>
+      <div class="card"><div class="ico">🔐</div><h3>Governance API</h3><p>Auth-gated audit, verify, session, and kill endpoints for full operator control.</p></div>
+      <div class="card"><div class="ico">🕊️</div><h3>Stealth + OAuth</h3><p>Human-handoff logins and anti-automation hardening, built in.</p></div>
+    </div>
+  </div>
+</section>
 
-    <!-- Countdown Section -->
-    <section id="countdown" class="border-t border-white/5 bg-white/[0.01] py-16 text-center">
-        <h2 class="text-xs font-mono tracking-widest text-emerald-400 uppercase mb-4">Launch Countdown</h2>
-        <div class="flex justify-center gap-6 font-mono text-4xl md:text-6xl font-bold text-white mb-4">
-            <div><span id="days">30</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Days</span></div>
-            <div><span id="hours">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Hours</span></div>
-            <div><span id="minutes">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Mins</span></div>
-            <div><span id="seconds">00</span><span class="text-xs text-gray-500 block uppercase tracking-wider mt-1">Secs</span></div>
-        </div>
-    </section>
+<!-- POWERED BY -->
+<section style="padding-top:10px;">
+  <div class="wrap powered">
+    <div class="tag">✦ Conscience powered by <b>SHACKLE</b> — the runtime circuit breaker for autonomous agents</div>
+    <div style="margin-top:22px">
+      <a class="btn ghost" href="https://github.com/Fame510/AgentOmega" target="_blank">AgentOmega Repo</a>
+      <a class="btn ghost" href="https://github.com/Fame510/SHACKLE" target="_blank">SHACKLE</a>
+    </div>
+    <div style="margin-top:20px">
+      <span class="pill"><b>pip</b> install git+https://github.com/Fame510/AgentOmega.git</span>
+      <span class="pill">FastAPI</span><span class="pill">Playwright</span><span class="pill"><b>Ed25519</b> audit</span>
+    </div>
+  </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/5 py-8 text-center text-xs text-gray-600 font-mono">
-        &copy; 2026 AgentOmega. Built for sovereign AI cost governance.
-    </footer>
+<footer>
+  <div class="wrap">
+    <div class="big">Agent<span class="g">Ω</span>mega</div>
+    <p style="margin:10px 0">The future of light — governed.</p>
+    <p>Built by <span class="sig">Dante Bullock · Sovereign Logic</span></p>
+  </div>
+</footer>
 
-    <!-- One-click launch + countdown timer script -->
-    <script>
-        // Launch dispatch triggers Fly.io action workflow
-        document.getElementById('launch-btn').addEventListener('click', () => {
-            const userToken = prompt('Please enter your GitHub Personal Access Token (with repo scope) to dispatch deploy:');
-            if (!userToken) return;
-            
-            const statusBtn = document.getElementById('launch-btn');
-            statusBtn.innerText = 'Dispatching Deployment Workflow...';
-            statusBtn.disabled = true;
-            
-            fetch('https://api.github.com/repos/Fame510/AgentOmega/actions/workflows/fly.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${userToken}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                },
-                body: JSON.stringify({ ref: 'main' })
-            }).then(resp => {
-                if (resp.status === 204) {
-                    alert('Success! Workflow dispatched. Redirecting to your AgentOmega repo Actions log.');
-                    window.location.href = 'https://github.com/Fame510/AgentOmega/actions';
-                } else {
-                    alert('Error dispatching workflow: ' + resp.statusText);
-                    statusBtn.innerText = 'Deploy Omega to Fly.io';
-                    statusBtn.disabled = false;
-                }
-            }).catch(err => {
-                alert('Error: ' + err.message);
-                statusBtn.innerText = 'Deploy Omega to Fly.io';
-                statusBtn.disabled = false;
-            });
-        });
+<script>
+const $=id=>document.getElementById(id);
+let ws=null,running=false,demoTimer=null,budget=1.0,calls=0,step=0;
 
-        // Anonymous Signup Form simulation
-        document.getElementById('signup-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('trial-email').value;
-            const status = document.getElementById('signup-status');
-            status.innerText = 'Registering ' + email + '...';
-            status.classList.remove('hidden');
-            
-            setTimeout(() => {
-                status.innerText = 'Success! Your free trial keys have been generated and sent to ' + email + '.';
-            }, 1000);
-        });
+/* light beams background */
+(function beams(){
+  const c=$('beams'),x=c.getContext('2d');
+  function size(){c.width=c.offsetWidth;c.height=c.offsetHeight;}
+  size();addEventListener('resize',size);
+  let t=0;
+  setInterval(()=>{
+    x.clearRect(0,0,c.width,c.height);t+=0.02;
+    for(let i=0;i<6;i++){
+      const y=c.height*(0.2+i*0.13)+Math.sin(t+i)*20;
+      const g=x.createLinearGradient(0,y,c.width,y);
+      g.addColorStop(0,'rgba(0,194,255,0)');g.addColorStop(.5,i%2?'rgba(255,210,31,.25)':'rgba(10,132,255,.25)');g.addColorStop(1,'rgba(0,194,255,0)');
+      x.strokeStyle=g;x.lineWidth=2;x.beginPath();
+      for(let px=0;px<=c.width;px+=8){x.lineTo(px,y+Math.sin(px*0.01+t+i)*10);}x.stroke();
+    }
+  },40);
+})();
 
-        // Countdown logic to August 30, 2026
-        const launchDate = new Date('August 30, 2026 00:00:00 UTC').getTime();
-        const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const diff = launchDate - now;
-            
-            if (diff < 0) {
-                clearInterval(timer);
-                document.getElementById('countdown').innerHTML = '<h2 class="text-emerald-400 font-bold">AGENTOMEGA IS LIVE!</h2>';
-                return;
-            }
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            document.getElementById('days').innerText = days;
-            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
-        }, 1000);
-    </script>
+function scrollToLive(){$('live').scrollIntoView({behavior:'smooth'});}
+function log(k,m){const t=$('telemetry'),r=document.createElement('div');r.className='row';
+  r.innerHTML=`<span class="t">[${new Date().toLocaleTimeString()}]</span> <span class="${k}">${m}</span>`;
+  t.appendChild(r);while(t.children.length>6)t.removeChild(t.firstChild);}
+function speak(w,x){const e=$('speech-'+w);e.textContent=x;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1800);}
+function verdict(v){const e=$('verdict');e.className='verdict '+v.toLowerCase()+' show';e.textContent=v;setTimeout(()=>e.classList.remove('show'),700);}
+function cursor(a,b){const c=$('cursor');c.style.left=a+'%';c.style.top=b+'%';}
+function clickFx(a,b){const r=$('ring');r.style.left=a+'%';r.style.top=b+'%';r.classList.remove('go');void r.offsetWidth;r.classList.add('go');}
+function hud(s){$('hud-state').textContent=s;$('hud-step').textContent=step;$('hud-budget').textContent='$'+budget.toFixed(4);$('hud-calls').textContent=calls;}
+function alertGuard(){$('b-guardian').classList.add('alert');setTimeout(()=>$('b-guardian').classList.remove('alert'),600);}
+
+function launch(){
+  if(running)return;running=true;budget=1.0;calls=0;step=0;$('telemetry').innerHTML='';hud('LAUNCHING');
+  const goal=$('goal').value||'Complete the task';log('sys','LAUNCH → '+goal);
+  const proto=location.protocol==='https:'?'wss':'ws',url=proto+'://'+location.host+'/ws/stream';
+  try{
+    ws=new WebSocket(url);let opened=false;
+    const fb=setTimeout(()=>{if(!opened){try{ws.close();}catch(e){}runDemo(goal);}},1200);
+    ws.onopen=()=>{opened=true;clearTimeout(fb);log('sys','Connected to live AgentOmega backend.');ws.send(JSON.stringify({action:'PRODUCE_WORKFLOW',goal}));};
+    ws.onmessage=e=>handleReal(JSON.parse(e.data));
+    ws.onerror=()=>{clearTimeout(fb);if(!opened)runDemo(goal);};
+    ws.onclose=()=>{if(opened){log('sys','Session closed.');running=false;hud('IDLE');}};
+  }catch(e){runDemo(goal);}
+}
+function handleReal(d){const s=(d.stage||'').toUpperCase();if(d.payload&&d.payload.step)step=d.payload.step;
+  if(s.includes('DENY')){verdict('DENY');alertGuard();}else if(s.includes('HITL')){verdict('HITL');}else if(s.includes('EXECUTION')){verdict('ALLOW');calls++;}
+  log(s.includes('DENY')?'deny':s.includes('HITL')?'hitl':s.includes('EXECUTION')?'allow':'sys',(d.stage||'INFO')+': '+(d.message||''));hud(s);}
+function stopRun(){running=false;if(ws){try{ws.send(JSON.stringify({action:'STOP_WORKFLOW'}));ws.close();}catch(e){}}if(demoTimer)clearTimeout(demoTimer);log('sys','■ STOP requested.');hud('STOPPED');}
+
+function runDemo(goal){
+  log('sys','No live backend — running governed demo.');
+  const steps=[
+    {think:'Charting a path to the goal…',url:'https://google.com',v:'ALLOW',act:'navigate',cost:.0005,x:50,y:40},
+    {think:'Typing the search…',url:'https://google.com/search',v:'ALLOW',act:'type',cost:.0005,x:42,y:34},
+    {think:'Opening the top result…',url:'https://github.com/Fame510/SHACKLE',v:'ALLOW',act:'click',cost:.0005,x:36,y:68},
+    {think:'Login wall — pausing for you…',url:'https://github.com/login',v:'HITL',act:'auth',cost:0,x:55,y:52},
+    {think:'Approved. Opening README…',url:'https://github.com/Fame510/SHACKLE#readme',v:'ALLOW',act:'click',cost:.0005,x:60,y:44},
+    {think:'Same click 4×… loop risk',url:'https://github.com/Fame510/SHACKLE#readme',v:'DENY',act:'click',cost:0,x:60,y:44},
+  ];
+  let i=0;
+  (function tick(){
+    if(!running||i>=steps.length){if(running){log('sys','Run complete. Ledger sealed + verifiable.');running=false;hud('DONE');}return;}
+    const s=steps[i];step=i+1;$('b-omega').classList.add('thinking');hud('THINKING');speak('omega',s.think);log('sys','Ω '+(i+1)+': '+s.think);$('fb-url').textContent=s.url;cursor(s.x,s.y);
+    demoTimer=setTimeout(()=>{
+      $('b-omega').classList.remove('thinking');speak('guardian','Weighing: '+s.act);hud('DECIDING');
+      demoTimer=setTimeout(()=>{
+        verdict(s.v);
+        if(s.v==='ALLOW'){clickFx(s.x,s.y);calls++;budget-=s.cost;log('allow','ALLOW → '+s.act+'  (−$'+s.cost.toFixed(4)+')');speak('guardian','ALLOW');}
+        else if(s.v==='HITL'){log('hitl','HITL → your approval needed ('+s.act+')');speak('guardian','HITL: approve?');}
+        else{alertGuard();log('deny','DENY → loop guard tripped. Circuit open.');speak('guardian','DENY');}
+        hud(s.v);i++;demoTimer=setTimeout(tick,s.v==='DENY'?1600:1100);
+      },700);
+    },900);
+  })();
+}
+log('sys','AgentOmega ready. Give Omega a goal and tap LAUNCH.');
+</script>
 </body>
 </html>
