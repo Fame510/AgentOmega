@@ -10,6 +10,13 @@ from playwright.async_api import async_playwright, Page, Browser, BrowserContext
 from app.config import settings
 from app.models import InteractiveElement, Action, PlanStep, Plan
 from app.planner import generate_plan
+from app.agents import AgentSpec, registry
+from app.shackle import (
+    Decision, GuardConfig, HitlMode, SessionState, ToolCall, Verdict,
+    apply_allow, apply_deny, apply_post_exec, decide, hash_params, ledger,
+)
+
+COST_PER_ACTION_USD = 0.005
 
 # Optional Redis integration
 if settings.USE_REDIS_SESSION:
@@ -19,7 +26,8 @@ else:
     redis_client = None
 
 class HardenedAgentEngine:
-    def __init__(self, goal: str, session_id: str, websocket_cb=None):
+    def __init__(self, goal: str, session_id: str, websocket_cb=None,
+                 agent_spec: Optional[AgentSpec] = None):
         self.goal = goal
         self.session_id = session_id
         self.websocket_cb = websocket_cb
@@ -28,6 +36,116 @@ class HardenedAgentEngine:
         self.current_plan: Optional[Plan] = None
         self.step_index = 0
         self._stop_requested = False
+        self._nonce = 0
+
+        self.agent_spec = agent_spec
+        policy = agent_spec.policy if agent_spec else None
+        self.guard_config = GuardConfig(
+            budget_usd=policy.budget_usd if policy else 0.25,
+            max_repeat_calls=policy.max_repeat_calls if policy else 3,
+            error_amplification=policy.error_amplification if policy else True,
+            timeout_seconds=policy.timeout_seconds if policy else 180,
+            max_total_calls=policy.max_total_calls if policy else 50,
+            hitl_mode=HitlMode(policy.hitl_mode) if policy else HitlMode.ON_DENY,
+            hitl_budget_threshold=policy.hitl_budget_threshold if policy else 0.2,
+        )
+        self.guard_state = SessionState(
+            session_id=session_id,
+            agent_id=agent_spec.id if agent_spec else "adhoc",
+            budget_initial_usd=self.guard_config.budget_usd,
+            budget_remaining_usd=self.guard_config.budget_usd,
+        )
+        self._hitl_event = asyncio.Event()
+        self._hitl_response: Optional[str] = None
+
+    def submit_hitl_response(self, choice: str):
+        """Called by the server when the operator answers a HITL prompt."""
+        self._hitl_response = choice
+        self._hitl_event.set()
+
+    def governance_snapshot(self) -> Dict:
+        s = self.guard_state
+        return {
+            "agent_id": s.agent_id,
+            "budget_initial": s.budget_initial_usd,
+            "budget_spent": round(s.budget_spent_usd, 6),
+            "budget_remaining": round(s.budget_remaining_usd, 6),
+            "total_calls": s.total_calls,
+            "circuit_tripped": s.circuit_tripped,
+            "trip_reason": s.circuit_trip_reason,
+        }
+
+    async def _gate(self, action: Action, step: PlanStep) -> bool:
+        """SHACKLE pre-execution gate. Returns True if the action may run."""
+        self._nonce += 1
+        params = action.model_dump(exclude_none=True)
+        call = ToolCall(
+            tool_name=action.type,
+            tool_params_hash=hash_params(params),
+            estimated_cost_usd=COST_PER_ACTION_USD,
+            nonce=self._nonce,
+            tool_params_raw=json.dumps(params),
+        )
+        decision = decide(self.guard_state, call, self.guard_config)
+
+        ledger.append({
+            "session_id": self.session_id,
+            "agent_id": self.guard_state.agent_id,
+            "tool": call.tool_name,
+            "verdict": decision.verdict.value,
+            "reason": decision.human_readable,
+            "budget_remaining": round(self.guard_state.budget_remaining_usd, 6),
+            "total_calls": self.guard_state.total_calls,
+        })
+        await self.emit(
+            f"{decision.verdict.value}: {decision.human_readable}",
+            "GOVERNOR",
+            {"verdict": decision.verdict.value, "governance": self.governance_snapshot()},
+        )
+
+        if decision.verdict == Verdict.HITL:
+            self._hitl_event.clear()
+            self._hitl_response = None
+            await self.emit(
+                f"Human approval required — {decision.human_readable}",
+                "HITL",
+                {"tool": call.tool_name, "params": params,
+                 "governance": self.governance_snapshot()},
+            )
+            await self._hitl_event.wait()
+            choice = self._hitl_response or "abort"
+            ledger.append({
+                "session_id": self.session_id,
+                "agent_id": self.guard_state.agent_id,
+                "tool": call.tool_name,
+                "verdict": f"HITL_{choice.upper()}",
+                "reason": "Operator decision",
+                "budget_remaining": round(self.guard_state.budget_remaining_usd, 6),
+                "total_calls": self.guard_state.total_calls,
+            })
+            if choice == "approve":
+                apply_allow(self.guard_state, call)
+                apply_post_exec(self.guard_state, COST_PER_ACTION_USD)
+                return True
+            if choice == "skip":
+                return False
+            apply_deny(self.guard_state, "Operator abort via HITL")
+            self._stop_requested = True
+            return False
+
+        if decision.verdict == Verdict.DENY:
+            apply_deny(self.guard_state, decision.human_readable)
+            self._stop_requested = True
+            await self.emit(
+                f"Circuit breaker TRIPPED: {decision.human_readable}",
+                "CIRCUIT_TRIPPED",
+                {"governance": self.governance_snapshot()},
+            )
+            return False
+
+        apply_allow(self.guard_state, call)
+        apply_post_exec(self.guard_state, COST_PER_ACTION_USD)
+        return True
 
     async def emit(self, msg: str, stage: str = "INFO", payload: Dict = None):
         if self.websocket_cb:
@@ -326,7 +444,8 @@ class HardenedAgentEngine:
                 self.context.on("page", on_new_page)
 
                 page = await self.context.new_page()
-                await page.goto("https://www.google.com", wait_until="domcontentloaded")
+                start_url = self.agent_spec.start_url if self.agent_spec else "https://www.google.com"
+                await page.goto(start_url, wait_until="domcontentloaded")
 
                 self.current_plan = await generate_plan(self.goal, page.url)
                 await self.emit(f"Plan generated: {len(self.current_plan.steps)} steps", "PLAN")
@@ -348,10 +467,21 @@ class HardenedAgentEngine:
                             await self.emit(f"Target '{action.target_id}' not found. VLM fallback...", "WARN")
                             action = await self.vlm_fallback(page, "target missing")
 
+                    allowed = await self._gate(action, step)
+                    if not allowed:
+                        if self._stop_requested:
+                            break
+                        await self.emit(f"Step {idx+1} skipped by governor.", "GOVERNOR")
+                        continue
+
                     success = await self.execute_action(page, action, step)
                     if not success:
                         await self.emit(f"Step {idx+1} failed. Trying VLM recovery...", "RECOVERY")
                         vlm_action = await self.vlm_fallback(page, "execution failed")
+                        if not await self._gate(vlm_action, step):
+                            if self._stop_requested:
+                                break
+                            continue
                         success = await self.execute_action(page, vlm_action, step)
                         if not success:
                             await self.emit(f"Step {idx+1} permanently failed.", "FATAL_ERROR")
@@ -364,7 +494,10 @@ class HardenedAgentEngine:
                     if settings.USE_REDIS_SESSION:
                         await self._save_session()
 
-                await self.emit("Workflow finished.", "SYSTEM")
+                if self.agent_spec:
+                    registry.record_run(self.agent_spec.id, tripped=self.guard_state.circuit_tripped)
+                await self.emit("Workflow finished.", "SYSTEM",
+                                {"governance": self.governance_snapshot()})
 
             except asyncio.CancelledError:
                 await self.emit("Workflow cancelled.", "SYSTEM")

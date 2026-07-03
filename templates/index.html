@@ -1,111 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agent Console</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
-        .log-line { border-bottom: 1px solid #1f1f1f; padding: 2px 0; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentOmega Ω — Build. Run. Govern.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #0a0a14; }
+    ::-webkit-scrollbar-thumb { background: #2e2e4a; border-radius: 4px; }
+    .log-line { border-bottom: 1px solid #16162a; padding: 3px 0; }
+    body { background: radial-gradient(ellipse at top, #101024 0%, #05050c 60%); }
+    .glow { text-shadow: 0 0 18px rgba(139, 92, 246, .55); }
+    .card { background: rgba(17,17,34,.72); border: 1px solid #26264a; backdrop-filter: blur(8px); }
+    input[type=range] { accent-color: #8b5cf6; }
+    .tab-active { color: #c4b5fd; border-color: #8b5cf6 !important; background: rgba(139,92,246,.08); }
+</style>
 </head>
-<body class="bg-black text-gray-200 font-mono text-sm min-h-screen flex flex-col">
+<body class="text-gray-200 font-mono text-sm min-h-screen flex flex-col">
 
-    <header class="border-b border-gray-800 bg-gray-900/80 px-6 py-3 flex justify-between items-center backdrop-blur">
-        <div class="flex items-center gap-3">
-            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="uppercase tracking-widest text-emerald-300 font-bold text-xs">Agent Orchestrator v3</span>
+<header class="border-b border-indigo-900/60 bg-black/50 px-6 py-3 flex justify-between items-center backdrop-blur sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl glow text-violet-400 font-bold">Ω</span>
+        <div>
+            <div class="uppercase tracking-widest text-violet-300 font-bold text-xs">AgentOmega</div>
+            <div class="text-[9px] text-gray-500 uppercase tracking-widest">Aeon_Dux Runtime × SHACKLE Governor</div>
         </div>
-        <span id="net-badge" class="text-[10px] uppercase tracking-wider text-gray-500 border border-gray-700 px-3 py-1 rounded">Offline</span>
-    </header>
+    </div>
+    <nav class="flex gap-1 text-[11px] uppercase tracking-widest">
+        <button id="tab-build" onclick="showTab('build')" class="tab px-4 py-1.5 rounded border border-transparent hover:text-violet-300">⚒ Build</button>
+        <button id="tab-run" onclick="showTab('run')" class="tab px-4 py-1.5 rounded border border-transparent hover:text-violet-300">▶ Run</button>
+        <button id="tab-govern" onclick="showTab('govern')" class="tab px-4 py-1.5 rounded border border-transparent hover:text-violet-300">⚖ Govern</button>
+    </nav>
+    <span id="net-badge" class="text-[10px] uppercase tracking-wider text-gray-500 border border-gray-700 px-3 py-1 rounded">Offline</span>
+</header>
 
-    <main class="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 max-w-7xl mx-auto w-full">
-        <!-- Left Panel -->
-        <section class="lg:col-span-1 bg-gray-900/50 border border-gray-800 rounded-xl p-5 flex flex-col h-[500px]">
-            <h2 class="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-3">⚡ Inject Goal</h2>
-            <textarea id="goal-input" rows="6" class="w-full bg-black border border-gray-700 rounded-lg p-3 text-xs text-gray-200 focus:border-emerald-400/60 outline-none resize-none placeholder-gray-600"
-                placeholder="e.g. Search for 'Playwright best practices' on Google and click the first result"></textarea>
-            <button onclick="startWorkflow()" class="mt-4 bg-emerald-500 hover:bg-emerald-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg transition-all shadow-lg shadow-emerald-500/20">
-                ▶ Launch
-            </button>
-            <button onclick="stopWorkflow()" class="mt-2 bg-rose-500 hover:bg-rose-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg transition-all shadow-lg shadow-rose-500/20">
-                ⏹ Stop
-            </button>
-            <div class="mt-3 text-[9px] text-gray-500 uppercase tracking-wider">
-                Status: <span id="status-label" class="text-gray-300">Idle</span>
+<main class="flex-1 max-w-7xl mx-auto w-full p-4">
+
+    <!-- ═══════════ BUILD ═══════════ -->
+    <div id="view-build" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section class="card rounded-xl p-6">
+            <h2 class="text-xs uppercase tracking-widest text-violet-300 font-bold mb-4">⚒ Agent Builder</h2>
+            <input type="hidden" id="b-id">
+            <label class="text-[10px] uppercase text-gray-400">Name</label>
+            <input id="b-name" class="w-full bg-black/60 border border-gray-700 rounded p-2 mt-1 mb-3 text-xs outline-none focus:border-violet-500" placeholder="e.g. Research Scout">
+            <label class="text-[10px] uppercase text-gray-400">Description</label>
+            <input id="b-desc" class="w-full bg-black/60 border border-gray-700 rounded p-2 mt-1 mb-3 text-xs outline-none focus:border-violet-500" placeholder="What does this agent do?">
+            <label class="text-[10px] uppercase text-gray-400">Default Goal Template</label>
+            <textarea id="b-goal" rows="2" class="w-full bg-black/60 border border-gray-700 rounded p-2 mt-1 mb-3 text-xs outline-none focus:border-violet-500 resize-none" placeholder="e.g. Search for {topic} and open the top result"></textarea>
+            <label class="text-[10px] uppercase text-gray-400">Start URL</label>
+            <input id="b-url" value="https://www.google.com" class="w-full bg-black/60 border border-gray-700 rounded p-2 mt-1 mb-4 text-xs outline-none focus:border-violet-500">
+
+            <h3 class="text-[10px] uppercase tracking-widest text-emerald-300 font-bold mb-3 border-t border-gray-800 pt-4">⚙ SHACKLE Policy</h3>
+            <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                <div>
+                    <label class="text-[10px] uppercase text-gray-400">Budget ($<span id="v-budget">0.25</span>)</label>
+                    <input id="b-budget" type="range" min="0.05" max="5" step="0.05" value="0.25" class="w-full" oninput="v('budget',this.value)">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-gray-400">Max repeats (<span id="v-repeat">3</span>)</label>
+                    <input id="b-repeat" type="range" min="1" max="10" step="1" value="3" class="w-full" oninput="v('repeat',this.value)">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-gray-400">Max total calls (<span id="v-total">50</span>)</label>
+                    <input id="b-total" type="range" min="5" max="200" step="5" value="50" class="w-full" oninput="v('total',this.value)">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-gray-400">Timeout s (<span id="v-timeout">180</span>)</label>
+                    <input id="b-timeout" type="range" min="30" max="600" step="30" value="180" class="w-full" oninput="v('timeout',this.value)">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-gray-400">HITL Mode</label>
+                    <select id="b-hitl" class="w-full bg-black/60 border border-gray-700 rounded p-2 mt-1 text-xs outline-none">
+                        <option value="never">Never (fully autonomous)</option>
+                        <option value="on_deny" selected>On deny (ask before blocking)</option>
+                        <option value="on_threshold">On budget threshold</option>
+                        <option value="always">Always (approve every action)</option>
+                    </select>
+                </div>
+                <div class="flex items-end pb-1">
+                    <label class="flex items-center gap-2 text-[10px] uppercase text-gray-400 cursor-pointer">
+                        <input id="b-amp" type="checkbox" checked class="accent-violet-500"> Error amplification
+                    </label>
+                </div>
+            </div>
+            <div class="flex gap-2 mt-5">
+                <button onclick="saveAgent()" class="flex-1 bg-violet-500 hover:bg-violet-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg shadow-lg shadow-violet-500/20">💾 Save Agent</button>
+                <button onclick="resetBuilder()" class="px-4 border border-gray-700 rounded-lg text-xs uppercase text-gray-400 hover:text-gray-200">Clear</button>
             </div>
         </section>
 
-        <!-- Telemetry Log -->
-        <section class="lg:col-span-2 bg-gray-900/50 border border-gray-800 rounded-xl flex flex-col h-[500px] overflow-hidden">
-            <div class="bg-black/40 px-4 py-2 border-b border-gray-800 flex justify-between text-[10px] uppercase tracking-wider text-gray-500">
+        <section class="card rounded-xl p-6">
+            <h2 class="text-xs uppercase tracking-widest text-violet-300 font-bold mb-4">🤖 Your Agents</h2>
+            <div id="agent-list" class="space-y-3 overflow-y-auto max-h-[560px]">
+                <div class="text-gray-600 text-xs">No agents yet. Build one on the left.</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ═══════════ RUN ═══════════ -->
+    <div id="view-run" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <section class="card rounded-xl p-5 flex flex-col">
+            <h2 class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-3">⚡ Mission Control</h2>
+            <label class="text-[10px] uppercase text-gray-400 mb-1">Agent</label>
+            <select id="run-agent" class="w-full bg-black/60 border border-gray-700 rounded p-2 mb-3 text-xs outline-none">
+                <option value="">Ad-hoc (default policy)</option>
+            </select>
+            <textarea id="goal-input" rows="5" class="w-full bg-black/60 border border-gray-700 rounded-lg p-3 text-xs outline-none focus:border-violet-500 resize-none placeholder-gray-600"
+                placeholder="e.g. Search for 'Playwright best practices' on Google and click the first result"></textarea>
+            <button onclick="startWorkflow()" class="mt-4 bg-emerald-500 hover:bg-emerald-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg shadow-lg shadow-emerald-500/20">▶ Launch</button>
+            <button onclick="stopWorkflow()" class="mt-2 bg-rose-500 hover:bg-rose-600 text-black font-bold uppercase text-xs tracking-widest py-2.5 rounded-lg shadow-lg shadow-rose-500/20">⏹ Stop</button>
+
+            <div class="mt-5 border-t border-gray-800 pt-4">
+                <h3 class="text-[10px] uppercase tracking-widest text-emerald-300 font-bold mb-3">⚖ Live Governor</h3>
+                <div class="text-[10px] uppercase text-gray-500 mb-1">Budget</div>
+                <div class="w-full bg-black/60 rounded-full h-3 border border-gray-800 overflow-hidden">
+                    <div id="budget-bar" class="h-full bg-gradient-to-r from-emerald-400 to-violet-500 transition-all" style="width:100%"></div>
+                </div>
+                <div class="flex justify-between text-[10px] mt-1 text-gray-400">
+                    <span id="budget-spent">$0.0000 spent</span>
+                    <span id="budget-total">of $0.00</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-3 text-[10px]">
+                    <div class="bg-black/40 border border-gray-800 rounded p-2">Calls<br><span id="g-calls" class="text-lg text-gray-100">0</span></div>
+                    <div class="bg-black/40 border border-gray-800 rounded p-2">Circuit<br><span id="g-circuit" class="text-lg text-emerald-400">CLOSED</span></div>
+                </div>
+                <div class="mt-2 text-[9px] text-gray-500 uppercase tracking-wider">Status: <span id="status-label" class="text-gray-300">Idle</span></div>
+            </div>
+        </section>
+
+        <section class="lg:col-span-2 card rounded-xl flex flex-col h-[640px] overflow-hidden">
+            <div class="bg-black/50 px-4 py-2 border-b border-gray-800 flex justify-between text-[10px] uppercase tracking-wider text-gray-500">
                 <span>Telemetry Stream</span>
-                <span id="step-counter">Step 0/0</span>
+                <span id="step-counter">Step 0</span>
             </div>
             <div id="log-container" class="flex-1 p-4 overflow-y-auto space-y-0.5">
                 <div class="text-gray-600">// Awaiting command...</div>
             </div>
         </section>
-    </main>
+    </div>
 
-    <script>
-        const logBox = document.getElementById('log-container');
-        const netBadge = document.getElementById('net-badge');
-        const statusLabel = document.getElementById('status-label');
-        const stepCounter = document.getElementById('step-counter');
+    <!-- ═══════════ GOVERN ═══════════ -->
+    <div id="view-govern" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <section class="lg:col-span-2 card rounded-xl flex flex-col h-[640px] overflow-hidden">
+            <div class="bg-black/50 px-4 py-2 border-b border-gray-800 flex justify-between items-center text-[10px] uppercase tracking-wider text-gray-500">
+                <span>🔗 Hash-Chained Audit Ledger</span>
+                <div class="flex gap-2">
+                    <button onclick="verifyChain()" class="border border-emerald-700 text-emerald-300 px-3 py-1 rounded hover:bg-emerald-950/40">Verify Chain</button>
+                    <button onclick="loadAudit()" class="border border-gray-700 px-3 py-1 rounded hover:text-gray-200">Refresh</button>
+                </div>
+            </div>
+            <div id="chain-status" class="hidden px-4 py-2 text-[11px] border-b border-gray-800"></div>
+            <div id="audit-container" class="flex-1 p-4 overflow-y-auto space-y-0.5 text-[11px]">
+                <div class="text-gray-600">// No audit entries yet.</div>
+            </div>
+        </section>
+        <section class="card rounded-xl p-5">
+            <h2 class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-3">🛰 Fleet</h2>
+            <div id="fleet-list" class="space-y-2 text-[11px]">
+                <div class="text-gray-600">// No active sessions.</div>
+            </div>
+        </section>
+    </div>
+</main>
 
-        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-        const ws = new WebSocket(`${protocol}://${location.host}/ws/stream`);
+<!-- HITL Modal -->
+<div id="hitl-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="card rounded-xl p-6 max-w-md w-full mx-4 border-amber-500/60">
+        <h2 class="text-amber-300 uppercase text-xs tracking-widest font-bold mb-2">⚠ Human Approval Required</h2>
+        <p id="hitl-message" class="text-gray-300 text-xs mb-3"></p>
+        <pre id="hitl-params" class="bg-black/60 border border-gray-800 rounded p-3 text-[10px] text-gray-400 overflow-x-auto mb-4"></pre>
+        <div class="flex gap-2">
+            <button onclick="hitl('approve')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-bold uppercase text-[11px] tracking-widest py-2 rounded-lg">✓ Approve</button>
+            <button onclick="hitl('skip')" class="flex-1 bg-amber-500 hover:bg-amber-600 text-black font-bold uppercase text-[11px] tracking-widest py-2 rounded-lg">↷ Skip</button>
+            <button onclick="hitl('abort')" class="flex-1 bg-rose-500 hover:bg-rose-600 text-black font-bold uppercase text-[11px] tracking-widest py-2 rounded-lg">✕ Abort</button>
+        </div>
+    </div>
+</div>
 
-        ws.onopen = () => {
-            netBadge.innerText = '🟢 Connected';
-            netBadge.className = 'text-[10px] uppercase tracking-wider text-emerald-400 border border-emerald-800 px-3 py-1 rounded bg-emerald-950/20';
-        };
-        ws.onclose = () => {
-            netBadge.innerText = '🔴 Disconnected';
-            netBadge.className = 'text-[10px] uppercase tracking-wider text-rose-400 border border-rose-800 px-3 py-1 rounded bg-rose-950/20';
-        };
+<script>
+const logBox = document.getElementById('log-container');
+const netBadge = document.getElementById('net-badge');
+const statusLabel = document.getElementById('status-label');
+const stepCounter = document.getElementById('step-counter');
 
-        ws.onmessage = (ev) => {
-            const data = JSON.parse(ev.data);
-            const line = document.createElement('div');
-            line.className = 'log-line flex gap-2 text-xs';
+// ── Tabs ──
+function showTab(name) {
+    ['build','run','govern'].forEach(t => {
+        document.getElementById('view-'+t).classList.toggle('hidden', t !== name);
+        document.getElementById('tab-'+t).classList.toggle('tab-active', t === name);
+    });
+    if (name === 'build') loadAgents();
+    if (name === 'run') loadAgentsIntoSelect();
+    if (name === 'govern') { loadAudit(); loadFleet(); }
+}
+function v(key, val) { document.getElementById('v-'+key).innerText = val; }
 
-            const time = new Date().toLocaleTimeString();
-            let stageColor = 'text-gray-400';
-            if (data.stage === 'PLAN') stageColor = 'text-purple-300';
-            if (data.stage === 'THINKING') stageColor = 'text-cyan-300';
-            if (data.stage === 'EXECUTION') stageColor = 'text-amber-300';
-            if (data.stage === 'VISION_FALLBACK') stageColor = 'text-rose-400 font-bold';
-            if (data.stage === 'FATAL_ERROR') stageColor = 'text-red-500 font-bold';
+// ── WebSocket ──
+const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
+const ws = new WebSocket(`${protocol}://${location.host}/ws/stream`);
+ws.onopen = () => {
+    netBadge.innerText = '🟢 Connected';
+    netBadge.className = 'text-[10px] uppercase tracking-wider text-emerald-400 border border-emerald-800 px-3 py-1 rounded bg-emerald-950/20';
+};
+ws.onclose = () => {
+    netBadge.innerText = '🔴 Disconnected';
+    netBadge.className = 'text-[10px] uppercase tracking-wider text-rose-400 border border-rose-800 px-3 py-1 rounded bg-rose-950/20';
+};
+ws.onmessage = (ev) => {
+    const data = JSON.parse(ev.data);
+    appendLog(data);
+    statusLabel.innerText = data.stage;
+    if (data.payload && data.payload.step) stepCounter.innerText = `Step ${data.payload.step}`;
+    if (data.payload && data.payload.governance) updateGovernor(data.payload.governance);
+    if (data.stage === 'HITL') showHitl(data);
+};
 
-            line.innerHTML = `
-                <span class="text-gray-600">[${time}]</span>
-                <span class="${stageColor} font-mono">[${data.stage}]</span>
-                <span class="text-gray-200">${data.message}</span>
-            `;
-            logBox.appendChild(line);
-            logBox.scrollTop = logBox.scrollHeight;
+function appendLog(data) {
+    const line = document.createElement('div');
+    line.className = 'log-line flex gap-2 text-xs';
+    const time = new Date().toLocaleTimeString();
+    let stageColor = 'text-gray-400';
+    if (data.stage === 'PLAN') stageColor = 'text-purple-300';
+    if (data.stage === 'THINKING') stageColor = 'text-cyan-300';
+    if (data.stage === 'EXECUTION') stageColor = 'text-amber-300';
+    if (data.stage === 'GOVERNOR') stageColor = 'text-emerald-300';
+    if (data.stage === 'HITL') stageColor = 'text-amber-400 font-bold';
+    if (data.stage === 'CIRCUIT_TRIPPED') stageColor = 'text-rose-400 font-bold';
+    if (data.stage === 'VISION_FALLBACK') stageColor = 'text-rose-400 font-bold';
+    if (data.stage === 'FATAL_ERROR') stageColor = 'text-red-500 font-bold';
+    const msg = document.createElement('span');
+    msg.className = 'text-gray-200';
+    msg.textContent = data.message;
+    line.innerHTML = `<span class="text-gray-600">[${time}]</span><span class="${stageColor}">[${data.stage}]</span>`;
+    line.appendChild(msg);
+    logBox.appendChild(line);
+    logBox.scrollTop = logBox.scrollHeight;
+}
 
-            statusLabel.innerText = data.stage;
-            if (data.payload && data.payload.step) {
-                stepCounter.innerText = `Step ${data.payload.step}`;
-            }
-        };
+function updateGovernor(g) {
+    const pct = g.budget_initial > 0 ? (g.budget_remaining / g.budget_initial) * 100 : 100;
+    document.getElementById('budget-bar').style.width = pct + '%';
+    document.getElementById('budget-spent').innerText = `$${g.budget_spent.toFixed(4)} spent`;
+    document.getElementById('budget-total').innerText = `of $${g.budget_initial.toFixed(2)}`;
+    document.getElementById('g-calls').innerText = g.total_calls;
+    const circuit = document.getElementById('g-circuit');
+    circuit.innerText = g.circuit_tripped ? 'TRIPPED' : 'CLOSED';
+    circuit.className = 'text-lg ' + (g.circuit_tripped ? 'text-rose-400' : 'text-emerald-400');
+}
 
-        function startWorkflow() {
-            const goal = document.getElementById('goal-input').value;
-            if (!goal.trim()) return alert('Enter a goal first.');
-            logBox.innerHTML = `<div class="text-emerald-400">🚀 Sending workflow...</div>`;
-            ws.send(JSON.stringify({ action: 'PRODUCE_WORKFLOW', goal: goal }));
+// ── Run ──
+function startWorkflow() {
+    const goal = document.getElementById('goal-input').value;
+    if (!goal.trim()) return alert('Enter a goal first.');
+    const agentId = document.getElementById('run-agent').value;
+    logBox.innerHTML = `<div class="text-emerald-400">🚀 Launching governed workflow...</div>`;
+    ws.send(JSON.stringify({ action: 'PRODUCE_WORKFLOW', goal: goal, agent_id: agentId || null }));
+}
+function stopWorkflow() { ws.send(JSON.stringify({ action: 'STOP_WORKFLOW' })); }
+
+// ── HITL ──
+function showHitl(data) {
+    document.getElementById('hitl-message').innerText = data.message;
+    document.getElementById('hitl-params').innerText = JSON.stringify(data.payload.params || {}, null, 2);
+    document.getElementById('hitl-modal').classList.remove('hidden');
+}
+function hitl(choice) {
+    ws.send(JSON.stringify({ action: 'HITL_RESPONSE', choice: choice }));
+    document.getElementById('hitl-modal').classList.add('hidden');
+}
+
+// ── Builder ──
+async function loadAgents() {
+    const agents = await (await fetch('/api/agents')).json();
+    const list = document.getElementById('agent-list');
+    if (!agents.length) { list.innerHTML = '<div class="text-gray-600 text-xs">No agents yet. Build one on the left.</div>'; return; }
+    list.innerHTML = '';
+    for (const a of agents) {
+        const div = document.createElement('div');
+        div.className = 'bg-black/40 border border-gray-800 rounded-lg p-4 hover:border-violet-700 transition-colors';
+        div.innerHTML = `
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-violet-300 font-bold text-xs">${esc(a.name)}</div>
+                    <div class="text-gray-500 text-[10px] mt-0.5">${esc(a.description || '')}</div>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick='editAgent(${JSON.stringify(a).replace(/'/g, "&#39;")})' class="text-[10px] border border-gray-700 px-2 py-0.5 rounded hover:text-violet-300">Edit</button>
+                    <button onclick="delAgent('${a.id}')" class="text-[10px] border border-rose-900 text-rose-400 px-2 py-0.5 rounded hover:bg-rose-950/40">Del</button>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-2 text-[9px] uppercase tracking-wider text-gray-500">
+                <span>💰 $${a.policy.budget_usd}</span>
+                <span>🔁 ${a.policy.max_repeat_calls}x</span>
+                <span>📞 ${a.policy.max_total_calls}</span>
+                <span>👤 ${a.policy.hitl_mode}</span>
+                <span>▶ ${a.runs} runs</span>
+                <span class="${a.trips > 0 ? 'text-rose-400' : ''}">⚡ ${a.trips} trips</span>
+            </div>`;
+        list.appendChild(div);
+    }
+}
+function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function editAgent(a) {
+    document.getElementById('b-id').value = a.id;
+    document.getElementById('b-name').value = a.name;
+    document.getElementById('b-desc').value = a.description;
+    document.getElementById('b-goal').value = a.goal_template;
+    document.getElementById('b-url').value = a.start_url;
+    document.getElementById('b-budget').value = a.policy.budget_usd; v('budget', a.policy.budget_usd);
+    document.getElementById('b-repeat').value = a.policy.max_repeat_calls; v('repeat', a.policy.max_repeat_calls);
+    document.getElementById('b-total').value = a.policy.max_total_calls; v('total', a.policy.max_total_calls);
+    document.getElementById('b-timeout').value = a.policy.timeout_seconds; v('timeout', a.policy.timeout_seconds);
+    document.getElementById('b-hitl').value = a.policy.hitl_mode;
+    document.getElementById('b-amp').checked = a.policy.error_amplification;
+}
+function resetBuilder() {
+    document.getElementById('b-id').value = '';
+    ['b-name','b-desc','b-goal'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('b-url').value = 'https://www.google.com';
+}
+async function saveAgent() {
+    const id = document.getElementById('b-id').value;
+    const spec = {
+        id: id,
+        name: document.getElementById('b-name').value,
+        description: document.getElementById('b-desc').value,
+        goal_template: document.getElementById('b-goal').value,
+        start_url: document.getElementById('b-url').value,
+        policy: {
+            budget_usd: parseFloat(document.getElementById('b-budget').value),
+            max_repeat_calls: parseInt(document.getElementById('b-repeat').value),
+            max_total_calls: parseInt(document.getElementById('b-total').value),
+            timeout_seconds: parseInt(document.getElementById('b-timeout').value),
+            error_amplification: document.getElementById('b-amp').checked,
+            hitl_mode: document.getElementById('b-hitl').value,
+            hitl_budget_threshold: 0.2,
         }
+    };
+    if (!spec.name.trim()) return alert('Give the agent a name.');
+    const url = id ? `/api/agents/${id}` : '/api/agents';
+    await fetch(url, { method: id ? 'PUT' : 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(spec) });
+    resetBuilder();
+    loadAgents();
+}
+async function delAgent(id) {
+    await fetch(`/api/agents/${id}`, { method: 'DELETE' });
+    loadAgents();
+}
+async function loadAgentsIntoSelect() {
+    const agents = await (await fetch('/api/agents')).json();
+    const sel = document.getElementById('run-agent');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Ad-hoc (default policy)</option>';
+    for (const a of agents) {
+        const opt = document.createElement('option');
+        opt.value = a.id;
+        opt.textContent = `${a.name} ($${a.policy.budget_usd} · ${a.policy.hitl_mode})`;
+        sel.appendChild(opt);
+    }
+    sel.value = current;
+    sel.onchange = () => {
+        const a = agents.find(x => x.id === sel.value);
+        if (a && a.goal_template) document.getElementById('goal-input').value = a.goal_template;
+    };
+}
 
-        function stopWorkflow() {
-            ws.send(JSON.stringify({ action: 'STOP_WORKFLOW' }));
-        }
-    </script>
+// ── Govern ──
+async function loadAudit() {
+    const entries = await (await fetch('/api/audit?limit=200')).json();
+    const box = document.getElementById('audit-container');
+    if (!entries.length) { box.innerHTML = '<div class="text-gray-600">// No audit entries yet.</div>'; return; }
+    box.innerHTML = '';
+    for (const e of entries.reverse()) {
+        const div = document.createElement('div');
+        let vColor = 'text-gray-400';
+        if (e.verdict === 'ALLOW') vColor = 'text-emerald-400';
+        if (e.verdict === 'DENY') vColor = 'text-rose-400';
+        if ((e.verdict || '').startsWith('HITL')) vColor = 'text-amber-400';
+        div.className = 'log-line flex gap-2 items-baseline';
+        div.innerHTML = `
+            <span class="text-gray-600">[${new Date(e.ts * 1000).toLocaleTimeString()}]</span>
+            <span class="${vColor} font-bold w-24">${esc(e.verdict)}</span>
+            <span class="text-cyan-300 w-16">${esc(e.tool || '')}</span>
+            <span class="text-gray-400 flex-1">${esc(e.reason || '')}</span>
+            <span class="text-gray-600" title="${esc(e.entry_hash)}">#${(e.entry_hash || '').slice(0, 8)}</span>`;
+        box.appendChild(div);
+    }
+}
+async function verifyChain() {
+    const res = await (await fetch('/api/audit/verify')).json();
+    const el = document.getElementById('chain-status');
+    el.classList.remove('hidden');
+    if (res.valid) {
+        el.className = 'px-4 py-2 text-[11px] border-b border-gray-800 text-emerald-300 bg-emerald-950/20';
+        el.innerText = `✓ Chain intact — ${res.total} entries cryptographically verified.`;
+    } else {
+        el.className = 'px-4 py-2 text-[11px] border-b border-gray-800 text-rose-300 bg-rose-950/20';
+        el.innerText = `✕ CHAIN BROKEN at entry ${res.broken_at} of ${res.total} — ledger tampered.`;
+    }
+}
+async function loadFleet() {
+    const sessions = await (await fetch('/api/sessions')).json();
+    const box = document.getElementById('fleet-list');
+    const running = sessions.filter(s => s.running);
+    if (!running.length) { box.innerHTML = '<div class="text-gray-600">// No active sessions.</div>'; return; }
+    box.innerHTML = '';
+    for (const s of running) {
+        const div = document.createElement('div');
+        div.className = 'bg-black/40 border border-gray-800 rounded p-3';
+        const g = s.governance || {};
+        div.innerHTML = `
+            <div class="flex justify-between items-center">
+                <span class="text-cyan-300">${s.session_id.slice(0, 8)}</span>
+                <button onclick="killSession('${s.session_id}')" class="text-[10px] border border-rose-900 text-rose-400 px-2 py-0.5 rounded hover:bg-rose-950/40">Kill</button>
+            </div>
+            <div class="text-gray-500 text-[10px] mt-1">agent: ${esc(g.agent_id || '?')} · calls: ${g.total_calls ?? '?'} · $${(g.budget_spent ?? 0).toFixed(4)} spent</div>`;
+        box.appendChild(div);
+    }
+}
+async function killSession(id) {
+    await fetch(`/api/sessions/${id}/kill`, { method: 'POST' });
+    setTimeout(loadFleet, 500);
+}
+
+showTab('run');
+</script>
 </body>
 </html>
